@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "bybit"
+version = "0.1.0"
+description = ""
+authors = ["Коля <kopytovnn@gmailcom>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pybit = "^5.8.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

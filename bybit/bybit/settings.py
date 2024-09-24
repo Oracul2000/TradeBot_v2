@@ -1,0 +1,9 @@
+class Tsettings:
+    testnet: bool
+    dep: float
+    symbol: str
+    stepmap: dict
+    valuemap: dict
+    api: str
+    secret: str
+    logprefix: str
