@@ -11,15 +11,14 @@ import logging
 
 from .constants import *
 from .errors import *
-from .position import Position
-from .execution import Execution
-from .order import LimitOrder
 from .settings import ByBitSettings
 
 
 class wsclient_pybit:
-    # def __init__(self, api: str, secret: str):
     def __init__(self, bbs: ByBitSettings):
+        self.prestart_funcs = []
+        self.prestart_args = []
+
         self.wsprivate = WebSocket(
             testnet=bbs.testnet,
             channel_type="private",
@@ -48,14 +47,6 @@ class wsclient_pybit:
 
         self.bbs = bbs
 
-        # self.market_order = lambda side, qty: self.session.place_order(
-        #     category="linear",
-        #     symbol=bbs.symbol,
-        #     side=side,
-        #     orderType="Market",
-        #     qty=qty
-        # )
-
     def switch_position_mode(self):
         self.session.switch_position_mode(
             category="linear",
@@ -63,12 +54,26 @@ class wsclient_pybit:
             mode=3
         )
 
-    def bind(self, handle_position_stream, 
+    def set_prestart(self, func, *args):
+        self.prestart_funcs.append(func)
+        self.prestart_args.append(args)
+
+    async def async_prestart(self):
+        for f, x in zip(self.prestart_funcs, self.prestart_args):
+            f(*x)
+
+    async def bind(self, handle_position_stream, 
              handle_execution_stream,
              handle_order_stream):
         self.wsprivate.position_stream(handle_position_stream)
-        # self.wsprivate.execution_stream(handle_execution_stream)
-        # self.wsprivate.order_stream(handle_order_stream)
+        self.wsprivate.execution_stream(handle_execution_stream)
+        self.wsprivate.order_stream(handle_order_stream)
+
+        not_started = True
         while True:
-            time.sleep(0.1)
+            if not_started:
+                await self.async_prestart()
+                not_started = False
+                time.sleep(2)
+            time.sleep(0.01)
             
