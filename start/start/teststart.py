@@ -1,13 +1,16 @@
-from strategies.classic_strategy import Disptcher
+from strategies.test_strategy import Disptcher
 from strategies.settings import StrategySettings
+
+import asyncio
+
 
 sttngs = StrategySettings()
 
-sttngs.api = '1IIDQovcA5ZYljlDTu'
-sttngs.secret = 'uwovHtsgA6dK3X8r6Y6dMB8Kn6jCCiqazsO0'
+sttngs.api = 'mYt8OuTqfT2rdUAIJg'
+sttngs.secret = 'XGhfPkMaTwpQf1UoPqV4XRRsrgltYnlPzOBd'
 sttngs.testnet = True
 sttngs.leverage = 20
-sttngs.dep = 150
+sttngs.dep = 250
 sttngs.stepmap = [
     0.3,
     0.8,
@@ -20,6 +23,7 @@ sttngs.stepmap = [
 sttngs.symbol = 'DOGEUSDT'
 sttngs.valuemap = [
     0.2,
+    0.2,
     0.4,
     0.8,
     1.6,
@@ -29,4 +33,6 @@ sttngs.valuemap = [
 ]
 
 dp = Disptcher(sttngs)
-dp.start()
+# dp.start()
+# await dp.start()
+asyncio.run(dp.start())
