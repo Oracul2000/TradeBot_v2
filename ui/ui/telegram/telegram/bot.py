@@ -1,0 +1,57 @@
+import asyncio
+
+from aiogram import BaseMiddleware
+from aiogram.types import TelegramObject
+from aiogram import Dispatcher, types
+from aiogram import Bot, Dispatcher
+from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.filters import CommandStart
+from aiogram.types import Message
+
+import logging
+import multiprocessing as mp
+from typing import Callable, Dict, Any, Awaitable
+
+from .config import *
+from handlers import common, adduser
+
+
+class SomeMiddleware(BaseMiddleware):
+    def __init__(self, allowed_users):
+        super().__init__()
+        self.allowed_users = allowed_users
+
+    async def __call__(
+        self,
+        handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+        event: TelegramObject,
+        data: Dict[str, Any]
+    ) -> Any:
+        user_id = event.chat.id
+        if user_id not in self.allowed_users:
+            return 0
+        result = await handler(event, data)
+        return result
+
+
+
+async def main():
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+    )
+
+    dp = Dispatcher(storage=MemoryStorage())
+    bot = Bot(TOKEN)
+
+    common.router.message.middleware(SomeMiddleware(ALLOWED_USERS))
+    adduser.router.message.middleware(SomeMiddleware(ALLOWED_USERS))
+
+    dp.include_router(common.router)
+    dp.include_router(adduser.router)
+
+    await dp.start_polling(bot)
+
+
+if __name__ == '__main__':
+    asyncio.run(main())

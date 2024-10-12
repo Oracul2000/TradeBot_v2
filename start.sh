@@ -15,5 +15,14 @@ cd ..
 poetry lock
 poetry install
 
+cd ui/ui/telegram
+poetry lock
+poetry install
+cd ../..
+poetry lock
+poetry install
+cd ..
+
 
 python start/start/teststart.py
+python start/start/ui_telegram_teststart.py

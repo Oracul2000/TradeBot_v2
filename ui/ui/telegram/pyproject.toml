@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "торговыйбот2"
+name = "telegram"
 version = "0.1.0"
 description = ""
 authors = ["Коля <kopytovnn@gmailcom>"]
@@ -7,9 +7,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-bybit = {path = "./bybit/"}
-strategies = {path = "./strategies/"}
-ui = {path = "./ui/"}
+
 
 [build-system]
 requires = ["poetry-core"]
