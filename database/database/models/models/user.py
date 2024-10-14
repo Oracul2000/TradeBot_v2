@@ -14,8 +14,7 @@ class API(Base):
     deposit = Column(Double(), nullable=True)
     user_id = Column(Integer, ForeignKey("User.id"))
     user = relationship("User", back_populates="apis")
-    # pid = Column(String(), nullable=True)
-
+    started_algos = relationship("Started Algos", back_populates="api")
 
 
 class User(Base):
@@ -23,9 +22,9 @@ class User(Base):
     id = Column(Integer, nullable=True, unique=True, primary_key=True, autoincrement=True)
     name = Column(String(), nullable=True)
     apis = relationship("API", back_populates="user")
-    started_algos = relationship()
-
 
 class StartedAlgos(Base):
+    __tablename__ = 'Started Algos'
     id = Column(Integer, nullable=True, unique=True, primary_key=True, autoincrement=True)
     api = relationship("API", back_populates='started_algos')
+    pid = Column(String(), nullable=True)

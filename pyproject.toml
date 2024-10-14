@@ -10,6 +10,7 @@ python = "^3.9"
 bybit = {path = "./bybit/"}
 strategies = {path = "./strategies/"}
 ui = {path = "./ui/"}
+database = {path = "./database/"}
 
 [build-system]
 requires = ["poetry-core"]

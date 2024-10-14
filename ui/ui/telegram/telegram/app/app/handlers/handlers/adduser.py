@@ -4,17 +4,15 @@ from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, ReplyKeyboardRemove, InlineKeyboardMarkup
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 
 from typing import Text
 
+from database.models.models.user import *
 from keyboards import buttons, simple_row
 
-# from sqlalchemy import create_engine
-# from sqlalchemy.orm import Session
-# from database.models import user
-
-
-# engine = create_engine("sqlite:///Data.db", echo=True)
+engine = create_engine("sqlite:///Data.db", echo=False)
 
 
 router = Router()
@@ -84,59 +82,13 @@ async def bybitdeposiot(message: types.Message, state: FSMContext):
 
     print(user_data)
 
-    # with Session(engine) as session:
-    #     if 'aid' not in user_data and 'uid' not in user_data:
-    #         print(1)
-    #         nu = user.User(name=user_data["name"])
-    #         na = user.API(name=user_data["name"],
-    #                       bybitapi=user_data["bybitapi"],
-    #                       bybitsecret=user_data["bybitsecret"],
-    #                       symbol=user_data["symbol"],
-    #                       deposit=float(user_data["deposit"]))
-    #         session.add_all([nu, na])
-    #         all_apis = session.query(user.API).all()
-    #         all_users = session.query(user.User).all()
-    #         all_users[-1].apis = [all_apis[-1]]
-    #         await state.update_data(aid=all_apis[-1].id)
-    #         await state.update_data(uid=all_users[-1].id)
-    #     elif 'aid' not in user_data:
-    #         print(2)
-    #         na = user.API(name=user_data["name"],
-    #                       bybitapi=user_data["bybitapi"],
-    #                       bybitsecret=user_data["bybitsecret"],
-    #                       symbol=user_data["symbol"],
-    #                       deposit=float(user_data["deposit"]))
-    #         session.add_all([na])
-    #         all_apis = session.query(user.API).all()
-    #         u = session.query(user.User).filter(
-    #             user.User.id == int(user_data["uid"])).all()[0]
-    #         u.apis.append(all_apis[-1])
-    #         await state.update_data(aid=all_apis[-1].id)
-    #     else:
-    #         print(3)
-    #         a = session.query(user.API).filter(
-    #             user.API.id == int(user_data["aid"])).all()[0]
+    with Session(engine) as session:
+        nu = user.User(user_data["name"])
+        na = user.API(name=user_data["name"],
+                        bybitapi=user_data["bybitapi"],
+                        bybitsecret=user_data["bybitsecret"],
+                        symbol=user_data["symbol"],
+                        deposit=float(user_data["deposit"]))
+        session.add_all([nu, na])
+        session.commit()
 
-    #         if "bybitapi" in user_data:
-    #             a.bybitapi = user_data["bybitapi"]
-    #             a.bybitsecret = user_data["bybitsecret"]
-    #         if "symbol" in user_data:
-    #             a.symbol = user_data["symbol"]
-    #         if "deposit" in user_data:
-    #             a.deposit = float(user_data["deposit"])
-
-    #     session.commit()
-
-    #     await message.answer("Данные успешно внесены")
-    #     await message.answer("Подождите...")
-
-    #     from app.handlers.allusers import bybitdeposiotclone
-    #     await bybitdeposiotclone(message, state)
-
-
-# def register_handlers_bybit_auth(dp: Dispatcher):
-#     dp.register_message_handler(adduser, commands="/add_user", state="*")
-#     dp.register_message_handler(namechoosen, state=AddNewUser.name)
-#     dp.register_message_handler(bybitapichoosen, state=AddNewUser.bybitapi)
-#     dp.register_message_handler(
-#         bybitsecretchoosen, state=AddNewUser.bybitsecret)
