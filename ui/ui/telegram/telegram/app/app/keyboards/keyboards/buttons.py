@@ -37,29 +37,29 @@ STATISTIS = types.InlineKeyboardButton(
     callback_data="get_stat"
 )
 
-# def ADD_TRAIDINGPAIR(uid):
-#     return types.InlineKeyboardButton(
-#         text="Добавить новую пару",
-#         callback_data=f"addtraiding_pairs_{uid}"
-#     )
+def ADD_TRAIDINGPAIR(uid=''):
+    return types.InlineKeyboardButton(
+        text="Добавить новую пару",
+        callback_data=f"addtraiding_pairs_{uid}"
+    )
 
-# def ACTIVE_PAIRS(uid):
-#     return types.InlineKeyboardButton(
-#         text="Активные пары",
-#         callback_data=f"active_pairs_{uid}"
-#     )
+def ACTIVE_PAIRS(uid=''):
+    return types.InlineKeyboardButton(
+        text="Активные пары",
+        callback_data=f"active_pairs_{uid}"
+    )
 
-# def TRAIDING_PAIRS(uid):
-#     return types.InlineKeyboardButton(
-#         text="Торговые пары",
-#         callback_data=f"traiding_pairs_{uid}"
-#     )
+def TRAIDING_PAIRS(uid=''):
+    return types.InlineKeyboardButton(
+        text="Торговые пары",
+        callback_data=f"traiding_pairs_{uid}"
+    )
 
-# def STARTBYBIT(uid):
-#     return types.InlineKeyboardButton(
-#         text="Запустить",
-#         callback_data=f"bybit_choosestrat_{uid}"
-#     )
+def STARTBYBIT(uid=''):
+    return types.InlineKeyboardButton(
+        text="Запустить",
+        callback_data=f"bybit_choosestrat_{uid}"
+    )
 
 # def CHOOSE(uid):
 #     return types.InlineKeyboardButton(
@@ -67,21 +67,21 @@ STATISTIS = types.InlineKeyboardButton(
 #         callback_data=f"bybit_start_{uid}"
 #     )
 
-# def STOPBYBIT(uid):
-#     return types.InlineKeyboardButton(
-#         text="Остановить",
-#         callback_data=f"bybit_stop_{uid}"
-#     )
+def STOPBYBIT(uid=''):
+    return types.InlineKeyboardButton(
+        text="Остановить",
+        callback_data=f"bybit_stop_{uid}"
+    )
 
 
-# def STOPCLOSEBYBIT(uid):
-#     return types.InlineKeyboardButton(
-#         text="Остановить c закрытием",
-#         callback_data=f"bybit_stopclose_{uid}"
-#     )
+def STOPCLOSEBYBIT(uid=''):
+    return types.InlineKeyboardButton(
+        text="Остановить c закрытием",
+        callback_data=f"bybit_stopclose_{uid}"
+    )
 
 
-def COIN(coin):
+def COIN(coin=''):
     return types.InlineKeyboardButton(
         text=coin,
         callback_data=f"bybit_change_{coin}")
@@ -91,24 +91,24 @@ def COIN(coin):
 #         text=coin,
 #         callback_data=f"bybit_change1_{coin}")
 
-# def COINAPI(api, coin):
-#     print(f"bybit_change2_{coin}_{api}")
-#     return types.InlineKeyboardButton(
-#         text=coin,
-#         callback_data=f"bybit_change2_{coin}${api}")
+def COINAPI(api, coin):
+    print(f"bybit_change2_{coin}_{api}")
+    return types.InlineKeyboardButton(
+        text=coin,
+        callback_data=f"bybit_change2_{coin}${api}")
 
-# def DELETEUSER(uid):
-#     return types.InlineKeyboardButton(
-#         text="Удалить",
-#         callback_data=f"delete_user_{uid}"
-#     )
+def DELETEUSER():
+    return types.InlineKeyboardButton(
+        text="Удалить",
+        callback_data=f"delete_user"
+    )
 
 
-# def DELETEAPI(aid):
-#     return types.InlineKeyboardButton(
-#         text="Удалить",
-#         callback_data=f"delete_api_{aid}"
-#     )
+def DELETEAPI(aid=''):
+    return types.InlineKeyboardButton(
+        text="Удалить",
+        callback_data=f"delete_api_{aid}"
+    )
 
 
 def STRATEGY_CONSERVO():

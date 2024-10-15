@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "app"
+name = "template-messages"
 version = "0.1.0"
 description = ""
 authors = ["Коля <kopytovnn@gmailcom>"]
@@ -7,9 +7,6 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-handlers = { path = "./handlers/" }
-keyboards = { path = "./keyboards/" }
-template_messages = { path = "./template_messages/" }
 
 
 [build-system]

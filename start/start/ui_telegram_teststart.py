@@ -1,7 +1,7 @@
 from ui.telegram.telegram import bot
-from database.init import init_db
+# from database.init import init_db
 import asyncio
 
 
-init_db()
+# init_db()
 asyncio.run(bot.main())

@@ -83,12 +83,14 @@ async def bybitdeposiot(message: types.Message, state: FSMContext):
     print(user_data)
 
     with Session(engine) as session:
-        nu = user.User(user_data["name"])
-        na = user.API(name=user_data["name"],
-                        bybitapi=user_data["bybitapi"],
-                        bybitsecret=user_data["bybitsecret"],
-                        symbol=user_data["symbol"],
-                        deposit=float(user_data["deposit"]))
-        session.add_all([nu, na])
+        nu = User(name=user_data["name"])
+
+        na = API(name=user_data["name"],
+                bybitapi=user_data["bybitapi"],
+                bybitsecret=user_data["bybitsecret"],
+                symbol=user_data["symbol"],
+                deposit=float(user_data["deposit"]))
+        nu.apis = [na]
+        session.add_all([nu, na,])
         session.commit()
 
