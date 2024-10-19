@@ -24,5 +24,5 @@ poetry install
 cd ..
 
 
-python start/start/teststart.py
+python start/start/trade_teststart.py
 python start/start/ui_telegram_teststart.py
