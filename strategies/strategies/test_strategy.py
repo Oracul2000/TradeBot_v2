@@ -1,5 +1,6 @@
-from bybit.client import wsclient_pybit
+import asyncio
 
+from bybit.client import wsclient_pybit
 from bybit.constants import *
 from .positions import *
 from bybit.settings import *
@@ -94,9 +95,15 @@ class Disptcher:
         price = start_price * (1 + operator * percents_from_start_price / 100)
         return price
 
-    async def start(self):
+    def start(self):
+        try:
+            self.wscl.session.switch_position_mode(category='linear',
+                                                symbol=self.sttngs.symbol,
+                                                mode=3)
+        except Exception:
+            pass
         for positionidx, pos in self.positions.items():
             self.wscl.set_prestart(pos.market_open, 100)
-        await self.wscl.bind(self.handle_position_stream, self.handle_execution_stream, self.handle_order_stream)
-
+        loop = asyncio.get_running_loop()
+        loop.create_task(self.wscl.bind(self.handle_position_stream, self.handle_execution_stream, self.handle_order_stream))
     

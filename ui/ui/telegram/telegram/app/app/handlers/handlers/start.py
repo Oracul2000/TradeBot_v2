@@ -25,7 +25,7 @@ async def start_bybit(callback: types.CallbackQuery, state: FSMContext):
     aid = int(user_data['aid'])
     with Session(engine) as session:
         a = session.query(user.API).filter(
-            user.User.id == aid).all()[0]
+            user.API.id == aid).all()[0]
         u = a.user
 
         sttngs = StrategySettings()
@@ -55,7 +55,6 @@ async def start_bybit(callback: types.CallbackQuery, state: FSMContext):
             12.8
         ]
 
-    dp = Disptcher(sttngs)
-    # dp.start()
-    # await dp.start()
-    asyncio.run(dp.start())
+        dp = Disptcher(sttngs)
+        loop = asyncio.get_running_loop()
+        loop.create_task(dp.start())

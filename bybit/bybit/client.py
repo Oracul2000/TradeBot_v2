@@ -24,8 +24,8 @@ class wsclient_pybit:
             channel_type="private",
             api_key=bbs.api,
             api_secret=bbs.secret,
-            trace_logging=True
-            # restart_on_error=True,
+            trace_logging=True,
+            restart_on_error=True,
         )
 
         self.session = HTTP(
