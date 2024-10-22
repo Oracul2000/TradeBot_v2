@@ -31,7 +31,7 @@ async def start_bybit(callback: types.CallbackQuery, state: FSMContext):
         sttngs = StrategySettings()
         sttngs.api = a.bybitapi
         sttngs.secret = a.bybitsecret
-        sttngs.testnet = True
+        sttngs.testnet = (a.net == 'testnet')
         sttngs.leverage = 20
         sttngs.dep = a.deposit
         sttngs.stepmap = [
