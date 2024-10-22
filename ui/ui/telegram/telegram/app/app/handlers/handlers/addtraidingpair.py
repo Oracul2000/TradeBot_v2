@@ -29,5 +29,9 @@ async def addtraidingpairs(callback: types.CallbackQuery, state: FSMContext):
     if 'uid' not in user_data:
         await callback.answer('Выберите пользователя')
         return
-    await callback.message.answer("Введите API key пользователя от ByBit")
-    await state.set_state(AddNewUser.bybitapi)
+    builder = InlineKeyboardBuilder()
+    builder.add(buttons.CHOOSE_MAINNET)
+    builder.add(buttons.CHOOSE_TESTNET)
+    await callback.message.answer("Выберите сеть",
+                         reply_markup=builder.as_markup())
+    await state.set_state(AddNewUser.bybitnet)

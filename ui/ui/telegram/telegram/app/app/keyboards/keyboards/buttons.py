@@ -37,6 +37,16 @@ STATISTIS = types.InlineKeyboardButton(
     callback_data="get_stat"
 )
 
+CHOOSE_TESTNET = types.InlineKeyboardButton(
+    text="Test Net",
+    callback_data="choosenet_testnet"
+)
+
+CHOOSE_MAINNET = types.InlineKeyboardButton(
+    text="Main Net",
+    callback_data="choosenet_mainnet"
+)
+
 def ADD_TRAIDINGPAIR(uid=''):
     return types.InlineKeyboardButton(
         text="Добавить новую пару",

@@ -17,8 +17,8 @@ class API(Base):
     user_id = Column(Integer, ForeignKey("User.id"))
     user = relationship("User", back_populates="apis")
 
-
-    # started_algos = relationship("Started", back_populates="api")
+    net = Column(String(), nullable=True)
+    pid = Column(String(), nullable=True)
 
 
 class User(Base):
@@ -26,13 +26,3 @@ class User(Base):
     id = Column(Integer, nullable=True, unique=True, primary_key=True, autoincrement=True)
     name = Column(String(), nullable=True)
     apis = relationship("API", back_populates="user")
-
-# class StartedAlgos(Base):
-#     __tablename__ = 'Started'
-#     id = Column(Integer, nullable=True, unique=True, primary_key=True, autoincrement=True)
-#     fake = Column(Boolean())
-
-#     api_id = Column(Integer, ForeignKey("API.id"))
-#     api = relationship("API", back_populates='started_algos')
-
-#     pid = Column(String(), nullable=True)

@@ -68,5 +68,8 @@ async def bybitdeposiot(message: types.Message, state: FSMContext):
         builder.add(buttons.TRAIDING_PAIRS())
         builder.add(buttons.DELETEUSER())
         builder.add(buttons.STATISTIS)
-        await message.answer(text=text,
+        if text:
+            await message.answer(text=text,
                              reply_markup=builder.as_markup())
+        else:
+            await message.answer("Сначала создайте нового пользователя")

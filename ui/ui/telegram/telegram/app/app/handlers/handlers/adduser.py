@@ -3,7 +3,8 @@ from aiogram import Router, F
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.types import Message, ReplyKeyboardRemove, InlineKeyboardMarkup
+from aiogram.types import Message, ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
@@ -22,6 +23,7 @@ coins = ['ADA', 'LINK', 'XRP', 'XLM', 'DASH', 'NEO', 'TRX',
 
 class AddNewUser(StatesGroup):
     name = State()
+    bybitnet = State()
     bybitapi = State()
     bybitsecret = State()
     symbol = State()
@@ -40,9 +42,23 @@ async def adduser(callback: types.CallbackQuery, state: FSMContext):
 @router.message(AddNewUser.name)
 async def namechoosen(message: types.Message, state: FSMContext):
     await state.update_data(name=message.text)
+    
+    await state.set_state(AddNewUser.bybitnet)
+    builder = InlineKeyboardBuilder()
+    builder.add(buttons.CHOOSE_MAINNET)
+    builder.add(buttons.CHOOSE_TESTNET)
+    await message.answer("Выберите сеть",
+                         reply_markup=builder.as_markup())
+
+
+@router.message(AddNewUser.bybitnet)
+@router.callback_query(F.data.startswith("choosenet"))
+async def netchosen(callback: types.CallbackQuery, state: FSMContext):
+    net = callback.data.split('_')[1]
+    await state.update_data(bybitnet=net)
 
     await state.set_state(AddNewUser.bybitapi.state)
-    await message.answer("Введите API key пользователя от ByBit")
+    await callback.message.answer("Введите API key пользователя от ByBit")
 
 
 @router.message(AddNewUser.bybitapi)
@@ -70,27 +86,30 @@ async def bybitsymbol(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.answer("Введите желаемый депозит в usdt")
 
 
-async def bybitsymbolclone(callback: types.CallbackQuery, state: FSMContext):
-    await state.set_state(AddNewUser.deposit.state)
-    await callback.message.answer("Введите желаемый депозит в usdt")
-
-
 @router.message(AddNewUser.deposit)
 async def bybitdeposiot(message: types.Message, state: FSMContext):
     await state.update_data(deposit=message.text.lower())
     user_data = await state.get_data()
 
-    print(user_data)
-
     with Session(engine) as session:
-        nu = User(name=user_data["name"])
+        # Add new User
+        if 'uid' not in user_data:
+            nu = User(name=user_data["name"])
+            session.add_all([nu])
+        # Get created user
+        else:
+            nu = session.query(User).filter(
+                User.id == int(user_data["uid"])).all()[0]
 
-        na = API(name=user_data["name"],
-                bybitapi=user_data["bybitapi"],
+
+        na = API(bybitapi=user_data["bybitapi"],
                 bybitsecret=user_data["bybitsecret"],
                 symbol=user_data["symbol"],
-                deposit=float(user_data["deposit"]))
-        nu.apis = [na]
-        session.add_all([nu, na,])
+                deposit=float(user_data["deposit"]),
+                net=user_data['bybitnet'])
+        nu.apis += [na]
+        session.add_all([na, ])
         session.commit()
+    
+    await message.answer("Данные успешно внесены")
 
