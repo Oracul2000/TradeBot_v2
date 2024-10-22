@@ -1,4 +1,5 @@
 from pybit.unified_trading import HTTP
+import pybit.exceptions
 
 from .constants import *
 from .orders import *
@@ -61,16 +62,19 @@ class Position:
         takeProfitPrice = None
         if self.positionIdx == LONGIDX:
             takeProfitPrice = entry_price * (1 + percents / 100 / self.sttngs.leverage)
-        else:
+        elif self.positionIdx == SHORTIDX:
             takeProfitPrice = entry_price * (1 - percents / 100 / self.sttngs.leverage)
 
-        self.session.set_trading_stop(
-            category="linear",
-            symbol=self.sttngs.symbol,
-            takeProfit=str(round(takeProfitPrice, 5)),
-            tpTriggerBy="MarkPrice",
-            tpslMode="Full",
-            tpOrderType="Market",
-            positionIdx=self.positionIdx
-        )
+        try:
+            self.session.set_trading_stop(
+                category="linear",
+                symbol=self.sttngs.symbol,
+                takeProfit=str(round(takeProfitPrice, 5)),
+                tpTriggerBy="MarkPrice",
+                tpslMode="Full",
+                tpOrderType="Market",
+                positionIdx=self.positionIdx
+            )
+        except pybit.exceptions.InvalidRequestError as e:
+            print('pybit.exceptions.InvalidRequestError in Take Profit')
 

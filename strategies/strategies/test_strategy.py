@@ -56,6 +56,8 @@ class Disptcher:
                 assert type(order) is Order
                 order.isFilled(i)
                 if order.status == ORDERFILLED:
+                    if self.steps[pos.positionIdx] == 6:
+                        return
                     self.steps[pos.positionIdx] += 1
                     price = self.calculate_price(pos.positionIdx, float(order.data['avgPrice']))
                     qty = self.calculate_value(pos.positionIdx, price)
@@ -80,7 +82,7 @@ class Disptcher:
                           SHORTIDX: Position(self.wscl.session, SHORTIDX, self.sttngs)}
         self.steps = {LONGIDX: 0,
                       SHORTIDX: 0}
-        
+
     def calculate_value(self, positionIdx: int, price_at_moment: float):
         step = self.steps[positionIdx]
         percents_from_dep = self.sttngs.valuemap[step + 1]
@@ -103,7 +105,11 @@ class Disptcher:
         except Exception:
             pass
         for positionidx, pos in self.positions.items():
-            self.wscl.set_prestart(pos.market_open, 100)
-        loop = asyncio.get_running_loop()
-        loop.create_task(self.wscl.bind(self.handle_position_stream, self.handle_execution_stream, self.handle_order_stream))
+            price = float(self.wscl.session.get_kline(category="linear",
+                                                symbol=self.sttngs.symbol,
+                                                interval="1")['result']['list'][0][1])
+            qty = self.calculate_value(positionidx, price)
+            self.wscl.set_prestart(pos.market_open, qty)
+        self.wscl.bind(self.handle_position_stream, self.handle_execution_stream, self.handle_order_stream)
+
     
