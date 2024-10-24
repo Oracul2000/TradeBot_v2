@@ -24,7 +24,11 @@ class Disptcher:
                 self.steps[positionidx] = 0
 
                 pos.data = i
-                pos.market_open(100)
+                price = float(self.wscl.session.get_kline(category="linear",
+                                                    symbol=self.sttngs.symbol,
+                                                    interval="1")['result']['list'][0][1])
+                qty = self.calculate_value(positionidx, price)
+                pos.market_open(qty)
             else:
                 pos.data = i
 
