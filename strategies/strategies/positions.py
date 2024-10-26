@@ -56,6 +56,16 @@ class Position:
         order.isSended(resp['result'])
         self.limits[order.orderId] = order
 
+    def cancelRecordedLimitOrders(self):
+        for i in self.limits:
+            try:
+                self.session.cancel_order(
+                    category="linear",
+                    symbol=self.sttngs.symbol,
+                    orderId=i)
+            except Exception:
+                print('cancelRecordedLimitOrders', i)
+
     def takeProfit(self, percents):
         self.self_update()
         entry_price = float(self.data['avgPrice'])

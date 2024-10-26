@@ -20,6 +20,8 @@ class Disptcher:
 
             # Position is closed
             if positionValue == 0 and float(pos.data['positionValue']) != positionValue:
+                self.positions[positionidx].cancelRecordedLimitOrders()                   
+
                 self.positions[positionidx] = Position(self.wscl.session, positionidx, self.sttngs)
                 self.steps[positionidx] = 0
 
