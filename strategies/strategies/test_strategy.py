@@ -23,14 +23,14 @@ class Disptcher:
                 self.positions[positionidx] = Position(self.wscl.session, positionidx, self.sttngs)
                 self.steps[positionidx] = 0
 
-                pos.data = i
+                self.positions[positionidx].data = i
                 price = float(self.wscl.session.get_kline(category="linear",
                                                     symbol=self.sttngs.symbol,
                                                     interval="1")['result']['list'][0][1])
                 qty = self.calculate_value(positionidx, price)
-                pos.market_open(qty)
+                self.positions[positionidx].market_open(qty)
             else:
-                pos.data = i
+                self.positions[positionidx].data = i
 
     def handle_execution_stream(self, message):
         pass
@@ -101,7 +101,7 @@ class Disptcher:
         price = start_price * (1 + operator * percents_from_start_price / 100)
         return price
 
-    def start(self):
+    async def start(self):
         try:
             self.wscl.session.switch_position_mode(category='linear',
                                                 symbol=self.sttngs.symbol,
@@ -114,6 +114,6 @@ class Disptcher:
                                                 interval="1")['result']['list'][0][1])
             qty = self.calculate_value(positionidx, price)
             self.wscl.set_prestart(pos.market_open, qty)
-        self.wscl.bind(self.handle_position_stream, self.handle_execution_stream, self.handle_order_stream)
+        await self.wscl.bind(self.handle_position_stream, self.handle_execution_stream, self.handle_order_stream)
 
     
