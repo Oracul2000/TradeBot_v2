@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
 import asyncio
+import threading
 
 from database.models.models import user
 from strategies.test_strategy import Disptcher
@@ -56,5 +57,5 @@ async def start_bybit(callback: types.CallbackQuery, state: FSMContext):
         ]
 
         dp = Disptcher(sttngs)
-        loop = asyncio.get_running_loop()
-        loop.create_task(dp.start())
+        t1 = threading.Thread(target=dp.start2, daemon=True)
+        t1.start()

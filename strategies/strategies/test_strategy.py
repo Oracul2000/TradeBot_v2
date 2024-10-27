@@ -119,4 +119,19 @@ class Disptcher:
             self.wscl.set_prestart(pos.market_open, qty)
         await self.wscl.bind(self.handle_position_stream, self.handle_execution_stream, self.handle_order_stream)
 
+    def start2(self):
+        try:
+            self.wscl.session.switch_position_mode(category='linear',
+                                                symbol=self.sttngs.symbol,
+                                                mode=3)
+        except Exception:
+            pass
+        for positionidx, pos in self.positions.items():
+            price = float(self.wscl.session.get_kline(category="linear",
+                                                symbol=self.sttngs.symbol,
+                                                interval="1")['result']['list'][0][1])
+            qty = self.calculate_value(positionidx, price)
+            self.wscl.set_prestart(pos.market_open, qty)
+        asyncio.run(self.wscl.bind(self.handle_position_stream, self.handle_execution_stream, self.handle_order_stream))
+
     
