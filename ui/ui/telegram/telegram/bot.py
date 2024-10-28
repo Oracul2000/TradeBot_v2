@@ -13,7 +13,7 @@ import multiprocessing as mp
 from typing import Callable, Dict, Any, Awaitable
 
 from .config import *
-from handlers import common, adduser, allusers, traidingpairs, addtraidingpair, start
+from handlers import common, adduser, allusers, traidingpairs, addtraidingpair, start, apikeys, changedepo
 
 class SomeMiddleware(BaseMiddleware):
     def __init__(self, allowed_users):
@@ -47,6 +47,8 @@ async def main():
     adduser.router.message.middleware(SomeMiddleware(ALLOWED_USERS))
     allusers.router.message.middleware(SomeMiddleware(ALLOWED_USERS))
     start.router.message.middleware(SomeMiddleware(ALLOWED_USERS))
+    apikeys.router.message.middleware(SomeMiddleware(ALLOWED_USERS))
+    changedepo.router.message.middleware(SomeMiddleware(ALLOWED_USERS))
 
     traidingpairs.router.message.middleware(SomeMiddleware(ALLOWED_USERS))
     addtraidingpair.router.message.middleware(SomeMiddleware(ALLOWED_USERS))
@@ -58,6 +60,8 @@ async def main():
 
     dp.include_router(traidingpairs.router)
     dp.include_router(addtraidingpair.router)
+    dp.include_router(apikeys.router)
+    dp.include_router(changedepo.router)
 
     await dp.start_polling(bot)
 

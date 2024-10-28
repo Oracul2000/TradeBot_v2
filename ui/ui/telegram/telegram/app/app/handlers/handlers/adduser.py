@@ -85,6 +85,13 @@ async def bybitsymbol(callback: types.CallbackQuery, state: FSMContext):
     await state.set_state(AddNewUser.deposit.state)
     await callback.message.answer("Введите желаемый депозит в usdt")
 
+def initnewapi(user_data):
+    na = API(bybitapi=user_data["bybitapi"],
+            bybitsecret=user_data["bybitsecret"],
+            symbol=user_data["symbol"],
+            deposit=float(user_data["deposit"]),
+            net=user_data['bybitnet'])
+    return na
 
 @router.message(AddNewUser.deposit)
 async def bybitdeposiot(message: types.Message, state: FSMContext):
@@ -95,20 +102,31 @@ async def bybitdeposiot(message: types.Message, state: FSMContext):
         # Add new User
         if 'uid' not in user_data:
             nu = User(name=user_data["name"])
-            session.add_all([nu])
-        # Get created user
-        else:
-            nu = session.query(User).filter(
+            na = initnewapi(user_data)
+            nu.apis += [na]
+            session.add_all([nu, na])
+        # Get created User &  Add new Api 
+        elif 'aid' not in user_data:
+            u = session.query(User).filter(
                 User.id == int(user_data["uid"])).all()[0]
+            na = initnewapi(user_data)
+            u.apis += [na]
+            session.add_all([na, ])
+        else:
+            a = session.query(API).filter(
+                API.id == int(user_data["aid"])).all()[0]
+            
+            if 'bybitapi' in user_data:
+                a.bybitapi = user_data['bybitapi']
+            if 'bybitsecret' in user_data:
+                a.bybitsecret = user_data['bybitsecret']
+            if 'symbol' in user_data:
+                a.symbol = user_data['symbol']
+            if 'deposit' in user_data:
+                a.deposit = user_data['deposit']
+            if 'bybitnet' in user_data:
+                a.net = user_data['bybitnet']
 
-
-        na = API(bybitapi=user_data["bybitapi"],
-                bybitsecret=user_data["bybitsecret"],
-                symbol=user_data["symbol"],
-                deposit=float(user_data["deposit"]),
-                net=user_data['bybitnet'])
-        nu.apis += [na]
-        session.add_all([na, ])
         session.commit()
     
     await message.answer("Данные успешно внесены")

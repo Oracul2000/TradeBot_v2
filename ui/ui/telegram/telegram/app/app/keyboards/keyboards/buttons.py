@@ -102,7 +102,6 @@ def COIN(coin=''):
 #         callback_data=f"bybit_change1_{coin}")
 
 def COINAPI(api, coin):
-    print(f"bybit_change2_{coin}_{api}")
     return types.InlineKeyboardButton(
         text=coin,
         callback_data=f"bybit_change2_{coin}${api}")
