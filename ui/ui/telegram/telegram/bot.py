@@ -14,6 +14,7 @@ from typing import Callable, Dict, Any, Awaitable
 
 from .config import *
 from handlers import common, adduser, allusers, traidingpairs, addtraidingpair, start, apikeys, changedepo
+from handlers import deletedata
 
 class SomeMiddleware(BaseMiddleware):
     def __init__(self, allowed_users):
@@ -49,6 +50,7 @@ async def main():
     start.router.message.middleware(SomeMiddleware(ALLOWED_USERS))
     apikeys.router.message.middleware(SomeMiddleware(ALLOWED_USERS))
     changedepo.router.message.middleware(SomeMiddleware(ALLOWED_USERS))
+    deletedata.router.message.middleware(SomeMiddleware(ALLOWED_USERS))
 
     traidingpairs.router.message.middleware(SomeMiddleware(ALLOWED_USERS))
     addtraidingpair.router.message.middleware(SomeMiddleware(ALLOWED_USERS))
@@ -62,6 +64,7 @@ async def main():
     dp.include_router(addtraidingpair.router)
     dp.include_router(apikeys.router)
     dp.include_router(changedepo.router)
+    dp.include_router(deletedata.router)
 
     await dp.start_polling(bot)
 

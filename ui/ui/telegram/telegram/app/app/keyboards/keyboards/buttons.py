@@ -116,7 +116,7 @@ def DELETEUSER():
 def DELETEAPI(aid=''):
     return types.InlineKeyboardButton(
         text="Удалить",
-        callback_data=f"delete_api_{aid}"
+        callback_data=f"delete_api"
     )
 
 
