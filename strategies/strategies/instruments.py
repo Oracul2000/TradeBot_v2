@@ -24,11 +24,35 @@ class Instruments:
         resp = self.session.get_positions(category="linear",
                                           symbol=self.symbol,
                                           )
-        return resp
+        return resp['result']['list']
+
+    def get_limit_orders(self):
+        resp = self.session.get_open_orders(
+            category='linear',
+            symbol=self.symbol,
+            openOnly=0,
+            limit=1
+        )
+        return resp['result']['list']
+    
+    def get_info(self):
+        sp = [0, 0, 0]
+        positions = self.positions_info()
+        for pos in positions:
+            if pos['avgPrice'] and pos['avgPrice'] != '0':
+                sp[0] += 1
+            if pos['takeProfit']:
+                sp[2] += 1
+
+        limit_orders = self.get_limit_orders()
+        for o in limit_orders:
+            if o['symbol'] == self.symbol:
+                sp[1] += 1
+        return f'{sp[0]}{sp[1]}{sp[2]}'
     
     def __position_info(self, positionIdx):
         positions = self.positions_info()
-        for pos in positions['result']['list']:
+        for pos in positions:
             if int(pos['positionIdx']) == int(positionIdx):
                 return pos
             
