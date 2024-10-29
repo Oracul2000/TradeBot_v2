@@ -68,8 +68,8 @@ async def bybitsymbol(callback: types.CallbackQuery, state: FSMContext):
     user_data = await state.get_data()
     builder = InlineKeyboardBuilder()
     row = [[buttons.STARTBYBIT(user_data["uid"])],
-           [buttons.STOPBYBIT(user_data["uid"]),
-            buttons.STOPCLOSEBYBIT(user_data["uid"])],
+           [buttons.STOPBYBIT(user_data["uid"]),],
+           [buttons.CLOSELONGBYBIT(), buttons.CLOSESHORTBYBIT()],
            [buttons.CHANGE_API, buttons.CHANGE_DEPOSIT],
            [buttons.DELETEAPI()], ]
     kb = InlineKeyboardMarkup(inline_keyboard=row, resize_keyboard=True)

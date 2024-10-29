@@ -39,12 +39,6 @@ class wsclient_pybit:
             channel_type="linear",
         )
 
-        self.session = HTTP(
-            testnet=bbs.testnet,
-            api_key=bbs.api,
-            api_secret=bbs.secret,
-        )
-
         self.bbs = bbs
 
     def switch_position_mode(self):

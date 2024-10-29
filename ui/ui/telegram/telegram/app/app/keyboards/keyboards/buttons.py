@@ -84,12 +84,22 @@ def STOPBYBIT(uid=''):
     )
 
 
-def STOPCLOSEBYBIT(uid=''):
+# def STOPCLOSEBYBIT(uid=''):
+#     return types.InlineKeyboardButton(
+#         text="Остановить c закрытием",
+#         callback_data=f"bybit_stopclose_{uid}"
+#     )
+def CLOSELONGBYBIT():
     return types.InlineKeyboardButton(
-        text="Остановить c закрытием",
-        callback_data=f"bybit_stopclose_{uid}"
+        text="Закрыть Long",
+        callback_data=f"bybit_close_long"
     )
 
+def CLOSESHORTBYBIT():
+    return types.InlineKeyboardButton(
+        text="Закрыть Short",
+        callback_data=f"bybit_close_short"
+    )
 
 def COIN(coin=''):
     return types.InlineKeyboardButton(
