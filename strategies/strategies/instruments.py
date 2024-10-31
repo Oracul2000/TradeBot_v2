@@ -31,9 +31,17 @@ class Instruments:
             category='linear',
             symbol=self.symbol,
             openOnly=0,
-            limit=1
+            # limit=1
         )
         return resp['result']['list']
+    
+    def get_balance(self):
+        resp = self.session.get_wallet_balance(accountType='UNIFIED',
+                                               coin='USDT')
+        balance = 0
+        if 'result' in resp and 'list' in resp['result']:
+            balance = float(resp['result']['list'][0]['totalEquity'])
+        return balance
     
     def get_info(self):
         sp = [0, 0, 0]

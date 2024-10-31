@@ -15,6 +15,7 @@ from typing import Text
 from keyboards.simple_row import make_row_keyboard, make_inline_keyboard
 import keyboards.buttons as buttons
 from template_messages.template_messages import *
+from strategies.user_info import UserInfo
 
 
 engine = create_engine("sqlite:///Data.db", echo=True)
@@ -60,10 +61,13 @@ async def bybitdeposiot(message: types.Message, state: FSMContext):
             user.User.id == int(user_data["uid"])).all()[0]
         text = f'Параметры пользователя {u.name}#{u.id}\n'
         for a in u.apis:
-            # ti = TradeInfo.SmallBybit(a.bybitapi, a.bybitsecret)
-            # ti.update(a)
-            # text += msgs.userbigouput(a, ti)
-            text += "\nIN PROGRESS\n"
+            ti = UserInfo(            
+                (a.net == 'testnet'),
+                a.bybitapi,
+                a.bybitsecret,
+                a.symbol + 'USDT')
+            ti.update(a.symbol)
+            text += userbigouput(a, ti)
         builder = InlineKeyboardBuilder()
         builder.add(buttons.TRAIDING_PAIRS())
         builder.add(buttons.DELETEUSER())
