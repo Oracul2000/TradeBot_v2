@@ -54,8 +54,8 @@ class wsclient_pybit:
 
     async def async_prestart(self):
         for f, x in zip(self.prestart_funcs, self.prestart_args):
-            f(*x)
             await asyncio.sleep(0)
+            f(*x)
 
     async def bind(self, handle_position_stream, 
              handle_execution_stream,
