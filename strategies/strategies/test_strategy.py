@@ -66,10 +66,10 @@ class Disptcher:
                         pos.takeProfit(80)
                     else:
                         pos.takeProfit(10)
-                    self.steps[pos.positionIdx] += 1
-                    price = self.calculate_price(pos.positionIdx, float(order.data['avgPrice']))
-                    qty = self.calculate_value(pos.positionIdx, price)
-                    pos.limit_open(qty, price)
+                        self.steps[pos.positionIdx] += 1
+                        price = self.calculate_price(pos.positionIdx, float(order.data['avgPrice']))
+                        qty = self.calculate_value(pos.positionIdx, price)
+                        pos.limit_open(qty, price)
 
     def __create_bybit_settings(self, sttngs: StrategySettings) -> ByBitSettings:
         bbs = ByBitSettings()
