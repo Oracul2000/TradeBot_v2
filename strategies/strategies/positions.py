@@ -67,8 +67,8 @@ class Position:
                 print('cancelRecordedLimitOrders', i)
 
     def takeProfit(self, percents):
-        self.self_update()
-        entry_price = float(self.data['avgPrice'])
+        # self.self_update()
+        entry_price = float(self.data['entryPrice'])
         takeProfitPrice = None
         if self.positionIdx == LONGIDX:
             takeProfitPrice = entry_price * (1 + percents / 100 / self.sttngs.leverage)

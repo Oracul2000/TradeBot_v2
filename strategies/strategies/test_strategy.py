@@ -33,6 +33,10 @@ class Disptcher:
                 self.positions[positionidx].market_open(qty)
             else:
                 self.positions[positionidx].data = i
+                if self.steps[pos.positionIdx] == 6:
+                    self.positions[positionidx].takeProfit(80)
+                else:
+                    self.positions[positionidx].takeProfit(10)
 
     def handle_execution_stream(self, message):
         pass
@@ -54,7 +58,6 @@ class Disptcher:
                     price = self.calculate_price(pos.positionIdx, float(order.data['avgPrice']))
                     qty = self.calculate_value(pos.positionIdx, price)
                     pos.limit_open(qty, price)
-                    pos.takeProfit(10)
 
             # Limit order is Filled
             elif orderId_callback in pos.limits:
@@ -63,9 +66,8 @@ class Disptcher:
                 order.isFilled(i)
                 if order.status == ORDERFILLED:
                     if self.steps[pos.positionIdx] == 6:
-                        pos.takeProfit(80)
+                        pass
                     else:
-                        pos.takeProfit(10)
                         self.steps[pos.positionIdx] += 1
                         price = self.calculate_price(pos.positionIdx, float(order.data['avgPrice']))
                         qty = self.calculate_value(pos.positionIdx, price)
