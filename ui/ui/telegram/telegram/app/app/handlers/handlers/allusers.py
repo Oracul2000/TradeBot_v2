@@ -66,8 +66,8 @@ async def bybitdeposiot(message: types.Message, state: FSMContext):
                 a.bybitapi,
                 a.bybitsecret,
                 a.symbol + 'USDT')
-            ti.update(a.symbol)
-            text += userbigouput(a, ti)
+            ti.update()
+            # text += userbigouput(a, ti)
         builder = InlineKeyboardBuilder()
         builder.add(buttons.TRAIDING_PAIRS())
         builder.add(buttons.DELETEUSER())

@@ -58,6 +58,22 @@ class Instruments:
                 sp[1] += 1
         return f'{sp[0]}{sp[1]}{sp[2]}'
     
+    def uber_info(self):
+        state = {LONGIDX: [], SHORTIDX: []}
+        positions = self.positions_info()
+        for pos in positions:
+            posIdx = pos['positionIdx']
+            state[posIdx].append(pos)
+        
+        limit_orders = self.get_limit_orders()
+        for o in limit_orders:
+            if o['symbol'] == self.symbol:
+                oidx = o['positionIdx']
+                state[oidx].append(o)
+
+        return state
+        
+    
     def __position_info(self, positionIdx):
         positions = self.positions_info()
         for pos in positions:

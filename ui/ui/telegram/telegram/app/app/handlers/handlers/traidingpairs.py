@@ -14,7 +14,7 @@ from typing import Text
 
 from keyboards.simple_row import make_row_keyboard, make_inline_keyboard
 import keyboards.buttons as buttons
-from strategies.instruments import Instruments
+from strategies.user_info import UserInfo
 from template_messages.template_messages import *
 from handlers.allusers import ByBitStart
 
@@ -83,23 +83,23 @@ async def bybitsymbol(callback: types.CallbackQuery, state: FSMContext):
            [buttons.DELETEAPI()], ]
     kb = InlineKeyboardMarkup(inline_keyboard=row, resize_keyboard=True)
 
-    tradeInfo = ""
     with Session(engine) as session:
         a = session.query(user.API).filter(user.API.id == aid).all()[0]
         assert type(a) == user.API
-        instr = Instruments(
+        user_info = UserInfo(
             (a.net == 'testnet'),
             a.bybitapi,
             a.bybitsecret,
             a.symbol + 'USDT'
         )
-        tradeInfo = instr.get_info()
+        user_info.update()
 
     # await state.set_state(ByBitStart.deposit.state)
     await callback.message.answer(
         text=f"""
 Торговые пары
-Выбрана торговая пара: {user_data["symbol"]} {tradeInfo}
+Выбрана торговая пара: {user_data["symbol"]} 
+{user_info}
 """,
         reply_markup=kb
     )
