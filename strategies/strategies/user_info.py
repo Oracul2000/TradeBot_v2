@@ -33,7 +33,7 @@ class PositionInfo():
         self.markPrice = direction[0]['markPrice']
         self.bustPrice = direction[0]['bustPrice']
         self.takeProfit = direction[0]['takeProfit']
-        self.cumRealisedPnl = direction[0]['cumRealisedPnl']
+        self.unrealisedPnl = direction[0]['unrealisedPnl']
 
         self.limits = False
         self.limits_list = []
@@ -47,7 +47,7 @@ class PositionInfo():
         Кол-во: {self.positionValue} 
         Средн. цена: {self.avgPrice} 
         TP: {self.takeProfit} 
-        PnL: {self.cumRealisedPnl} 
+        PnL: {self.unrealisedPnl} 
         Цена ликвидации: {self.bustPrice}'''
         for o_inf in self.limits_list:
             answer += '\n' + str(o_inf)
