@@ -43,6 +43,16 @@ class Instruments:
             balance = float(resp['result']['list'][0]['totalEquity'])
         return balance
     
+    def get_statistics(self, start_time, stop_time):
+        resp = self.session.get_closed_pnl(
+            category='linear',
+            symbol=self.symbol,
+            startTime=start_time,
+            stopTime=stop_time
+        )
+        if 'result' in resp and 'list' in resp['result']:
+            return resp['result']['list']
+    
     def get_info(self):
         sp = [0, 0, 0]
         positions = self.positions_info()

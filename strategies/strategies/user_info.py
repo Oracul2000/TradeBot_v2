@@ -1,4 +1,8 @@
+import pandas as pd
+
 import asyncio
+import datetime
+import time
 
 from bybit.constants import *
 from .instruments import Instruments
@@ -9,7 +13,6 @@ from .settings import StrategySettings
 
 class LimitInfo():
     def __init__(self, o) -> None:
-        print(o)
         self.price = o['price']
         self.qty = o['qty']
         self.side = o['side']
@@ -80,10 +83,24 @@ class UserInfo():
             self.coin_info = CoinInfo(self.instr.uber_info())
             self.apiStatus = True
         except Exception as e:
-            import traceback
-            print(traceback.print_exc())
             self.apiStatus = False
             print('Api неверные')
+
+    def statistics(self, symbol, startTime, stopTime):
+        delta = 1070744400000 - 1070226000000
+        startms = int(time.mktime(datetime.datetime.strptime(startTime, "%d.%m.%Y").timetuple())) * 1000
+        stopms = int(time.mktime(datetime.datetime.strptime(stopTime, "%d.%m.%Y").timetuple())) * 1000
+        tr = []
+        for i in range(startms, stopms, delta):
+            resp = self.instr.get_statistics(i, min(i + delta, stopms))
+            tr += resp
+        
+        df = pd.DataFrame(tr)
+        df["updatedTime"] = [datetime.datetime.fromtimestamp(int(i) / 1000.0) for i in df["updatedTime"]]
+        df["createdTime"] = [datetime.datetime.fromtimestamp(int(i) / 1000.0) for i in df["createdTime"]]
+        df["closedPnl"] = [i.replace('.', ',') for i in df["closedPnl"]]        
+        df.to_csv('out.csv', index=False)
+
 
     def __repr__(self) -> str:
         return f'{self.coin_info}'
