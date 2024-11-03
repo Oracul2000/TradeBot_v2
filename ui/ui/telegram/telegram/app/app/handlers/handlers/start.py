@@ -55,7 +55,11 @@ async def start_bybit(callback: types.CallbackQuery, state: FSMContext):
             6.4,
             12.8
         ]
+        def start():
+            async def main():
+                await asyncio.gather(dp.start())
+            asyncio.run(main())
 
         dp = Disptcher(sttngs)
-        t1 = threading.Thread(target=dp.start2, daemon=True)
+        t1 = threading.Thread(target=start, daemon=True)
         t1.start()
