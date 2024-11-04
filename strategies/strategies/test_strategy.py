@@ -4,6 +4,7 @@ from bybit.client import wsclient_pybit
 from bybit.constants import *
 from .positions import *
 from bybit.settings import *
+from .messages import *
 from .settings import StrategySettings
 
 
@@ -65,6 +66,8 @@ class Disptcher:
                 assert type(order) is Order
                 order.isFilled(i)
                 if order.status == ORDERFILLED:
+                    self.orderMsg.check_publish(self.steps[pos.positionIdx] + 2, 3)
+
                     if self.steps[pos.positionIdx] == 6:
                         pass
                     else:
@@ -91,6 +94,8 @@ class Disptcher:
                           SHORTIDX: Position(self.wscl.session, SHORTIDX, self.sttngs)}
         self.steps = {LONGIDX: 0,
                       SHORTIDX: 0}
+        
+        self.orderMsg = OrderMsg(self.sttngs.api, self.sttngs.symbol) 
 
     def calculate_value(self, positionIdx: int, price_at_moment: float):
         step = self.steps[positionIdx]

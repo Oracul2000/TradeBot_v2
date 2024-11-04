@@ -1,4 +1,6 @@
 *.pyc
 *.whl
 *.lock
+*.log
 Data.db
+/bus/

@@ -31,6 +31,7 @@ sttngs.valuemap = [
     6.4,
     12.8
 ]
+sttngs.logprefix = 'a/a.log'
 
 dp = Disptcher(sttngs)
 # dp.start()
