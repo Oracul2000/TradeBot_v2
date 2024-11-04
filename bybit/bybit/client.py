@@ -18,6 +18,8 @@ class wsclient_pybit:
     def __init__(self, bbs: ByBitSettings):
         self.prestart_funcs = []
         self.prestart_args = []
+        logging.basicConfig(filename=bbs.logprefix, level=logging.DEBUG,
+                            format="%(asctime)s %(levelname)s %(message)s")
 
         self.wsprivate = WebSocket(
             testnet=bbs.testnet,

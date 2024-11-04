@@ -32,6 +32,9 @@ class ByBitStart(StatesGroup):
     beforedate = State()
     afterdate = State()
     statistics = State()
+    valuemap = State()
+    stepmap = State()
+    start = State()
 
 
 @router.message(Command("all_users"))
@@ -40,7 +43,6 @@ async def allusers(callback: types.CallbackQuery, state: FSMContext):
     with Session(engine) as session:
         all_users = session.query(user.User).all()
         textanswer = ""
-        print(all_users)
         for u in all_users:
             textanswer += useroutput(u) + '\n'
         await callback.message.answer(

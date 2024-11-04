@@ -79,7 +79,7 @@ class Disptcher:
         bbs.symbol = sttngs.symbol
         bbs.api = sttngs.api
         bbs.secret = sttngs.secret
-        bbs.logprefix = ''
+        bbs.logprefix = sttngs.logprefix
         bbs.leverage = sttngs.leverage
         return bbs
 

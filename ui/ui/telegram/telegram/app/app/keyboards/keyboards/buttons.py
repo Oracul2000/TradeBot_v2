@@ -149,3 +149,9 @@ def STRATEGY_PROF():
         text="Польз.",
         callback_data="strategy_prof"
     )
+
+
+START = types.InlineKeyboardButton(
+        text="Запуск",
+        callback_data="start"
+    )
