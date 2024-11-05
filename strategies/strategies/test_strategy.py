@@ -1,4 +1,5 @@
 import asyncio
+from math import log
 
 from bybit.client import wsclient_pybit
 from bybit.constants import *
@@ -15,7 +16,7 @@ class Disptcher:
             positionValue = float(i['positionValue'])
             pos = self.positions[positionidx]
 
-            if not pos.data:
+            if pos.data or pos.data['avgprice'] == '0':
                 pos.data = i
                 continue
 
@@ -66,15 +67,18 @@ class Disptcher:
                 assert type(order) is Order
                 order.isFilled(i)
                 if order.status == ORDERFILLED:
-                    self.orderMsg.check_publish(self.steps[pos.positionIdx] + 2, 3)
+                    self.orderMsg.check_publish(self.steps[pos.positionIdx] + 2, 7)
 
-                    if self.steps[pos.positionIdx] == 6:
-                        pass
-                    else:
-                        self.steps[pos.positionIdx] += 1
-                        price = self.calculate_price(pos.positionIdx, float(order.data['avgPrice']))
-                        qty = self.calculate_value(pos.positionIdx, price)
-                        pos.limit_open(qty, price)
+                    self.create_limit(pos, float(order.data['avgPrice']))
+
+    def create_limit(self, pos: Position, start_price):
+        if self.steps[pos.positionIdx] == 6:
+            pass
+        else:
+            self.steps[pos.positionIdx] += 1
+            price = self.calculate_price(pos.positionIdx, start_price)
+            qty = self.calculate_value(pos.positionIdx, price)
+            pos.limit_open(qty, price)
 
     def __create_bybit_settings(self, sttngs: StrategySettings) -> ByBitSettings:
         bbs = ByBitSettings()
@@ -119,26 +123,19 @@ class Disptcher:
         except Exception:
             pass
         for positionidx, pos in self.positions.items():
+            pos.self_update()
             price = float(self.wscl.session.get_kline(category="linear",
                                                 symbol=self.sttngs.symbol,
                                                 interval="1")['result']['list'][0][1])
-            qty = self.calculate_value(positionidx, price)
-            self.wscl.set_prestart(pos.market_open, qty)
+            if pos.data['avgPrice'] != '0':
+                qty = self.calculate_value(positionidx, price)
+                self.wscl.set_prestart(pos.market_open, qty)
+            else:
+                start_qty = self.sttngs.dep * self.sttngs.valuemap[1]
+                start_value_usdt = start_qty * price
+                ratio = float(pos.data['positionValue']) / start_value_usdt
+                step = round(log(ratio, 2), 0) - 1
+                self.steps[pos.positionIdx] = int(step)
+                self.wscl.set_prestart(self.create_limit, pos, price)
         await self.wscl.bind(self.handle_position_stream, self.handle_execution_stream, self.handle_order_stream)
-
-    def start2(self):
-        try:
-            self.wscl.session.switch_position_mode(category='linear',
-                                                symbol=self.sttngs.symbol,
-                                                mode=3)
-        except Exception:
-            pass
-        for positionidx, pos in self.positions.items():
-            price = float(self.wscl.session.get_kline(category="linear",
-                                                symbol=self.sttngs.symbol,
-                                                interval="1")['result']['list'][0][1])
-            qty = self.calculate_value(positionidx, price)
-            self.wscl.set_prestart(pos.market_open, qty)
-        asyncio.run(self.wscl.bind(self.handle_position_stream, self.handle_execution_stream, self.handle_order_stream))
-
     
