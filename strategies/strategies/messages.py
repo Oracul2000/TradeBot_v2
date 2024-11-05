@@ -13,12 +13,10 @@ class Msg:
         pass
 
     def check_publish(self, *params):
-        print(params)
         if self.check(*params):
-            print(self.additional_text)
             tgmsg = {
                 'Type': self.type_msg,
-                'API Id': self.uid,
+                'User Id': self.uid,
                 'symbol': self.symbol,
                 'Additional': self.additional_text,
             }

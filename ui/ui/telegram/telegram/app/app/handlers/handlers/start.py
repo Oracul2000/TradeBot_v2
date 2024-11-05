@@ -96,6 +96,7 @@ async def start_bybit(message: types.Message, state: FSMContext):
         u = a.user
 
         sttngs = StrategySettings()
+        sttngs.uid = u.id
         sttngs.api = a.bybitapi
         sttngs.secret = a.bybitsecret
         sttngs.testnet = (a.net == 'testnet')

@@ -6,5 +6,6 @@ class StrategySettings:
     stepmap: dict
     valuemap: dict
     api: str
+    uid: int
     secret: str
     logprefix: str

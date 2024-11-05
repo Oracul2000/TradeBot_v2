@@ -95,7 +95,7 @@ class Disptcher:
         self.steps = {LONGIDX: 0,
                       SHORTIDX: 0}
         
-        self.orderMsg = OrderMsg(self.sttngs.api, self.sttngs.symbol) 
+        self.orderMsg = OrderMsg(self.sttngs.uid, self.sttngs.symbol) 
 
     def calculate_value(self, positionIdx: int, price_at_moment: float):
         step = self.steps[positionIdx]

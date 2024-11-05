@@ -12,6 +12,7 @@ import logging
 import multiprocessing as mp
 from typing import Callable, Dict, Any, Awaitable
 
+from .backgroundtasks import *
 from .config import *
 from handlers import common, adduser, allusers, traidingpairs, addtraidingpair, start, apikeys, changedepo, closepos
 from handlers import deletedata, getstatistics
@@ -69,6 +70,8 @@ async def main():
     dp.include_router(deletedata.router)
     dp.include_router(closepos.router)
     dp.include_router(getstatistics.router)
+
+    asyncio.create_task(newreports(bot))
 
     await dp.start_polling(bot)
 
