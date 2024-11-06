@@ -19,6 +19,7 @@ from keyboards import buttons
 
 
 engine = create_engine("sqlite:///Data.db", echo=True)
+tasks = {}
 router = Router()
 
 
@@ -107,19 +108,38 @@ async def start_bybit(message: types.Message, state: FSMContext):
         sttngs.valuemap = user_data['valuemap']
         sttngs.logprefix = f'logs/{u.id}{u.name}/{a.id}{a.symbol}/{datetime.now()}.log'
 
-        def start():
-            async def main():
-                await asyncio.gather(dp.start())
-            asyncio.run(main())
         
         dp = Disptcher(sttngs)
         try:
-            p = Process(target=dp.start)
-            p.daemon = True
-            p.start()
+            with Session(engine) as session:
+                from multiprocessing import Process
+                a = session.query(user.API).filter(
+                    user.API.id == aid).all()[0]
+                p = Process(target=dp.start)
+                p.daemon = True
+                p.name = f'TradeProcessUSER{u.id}API{aid}SYMBOL{a.symbol}'
+                p.start()
+
+                a.pid = str(p.pid)
+                session.commit()
+                tasks[aid] = p
         except Exception:
             print('Ошибка системы Windows призапуске многоппроцессорного режима')
             print('Запуск многопоточного режима. Остановка не работает')
-            from threading import Thread
-            t = Thread(target=dp.start)
-            t.start()
+
+
+@router.callback_query(F.data.startswith("bybit_stop_"))
+async def start_bybit(message: types.Message, state: FSMContext):
+    user_data = await state.get_data()
+    if 'uid' not in user_data or 'aid' not in user_data:
+        message.answer('Выберите пользователя и API')
+        return
+    aid = int(user_data['aid'])
+    with Session(engine) as session:
+        a = session.query(user.API).filter(
+            user.API.id == aid).all()[0]
+        u = a.user
+
+        p = tasks[a.id]
+        assert type(p) == Process
+        p.kill()

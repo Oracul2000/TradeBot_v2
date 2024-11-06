@@ -22,7 +22,6 @@ engine = create_engine("sqlite:///Data.db", echo=True)
 router = Router()
 
 
-
 @router.callback_query(F.data.startswith("addtraiding_pairs_"))
 async def addtraidingpairs(callback: types.CallbackQuery, state: FSMContext):
     user_data = await state.get_data()
