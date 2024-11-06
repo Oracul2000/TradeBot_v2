@@ -16,7 +16,7 @@ class Disptcher:
             positionValue = float(i['positionValue'])
             pos = self.positions[positionidx]
 
-            if pos.data or pos.data['avgprice'] == '0':
+            if not pos.data:
                 pos.data = i
                 continue
 
@@ -127,7 +127,7 @@ class Disptcher:
             price = float(self.wscl.session.get_kline(category="linear",
                                                 symbol=self.sttngs.symbol,
                                                 interval="1")['result']['list'][0][1])
-            if pos.data['avgPrice'] != '0':
+            if pos.data['avgPrice'] == '0':
                 qty = self.calculate_value(positionidx, price)
                 self.wscl.set_prestart(pos.market_open, qty)
             else:
@@ -137,5 +137,7 @@ class Disptcher:
                 step = round(log(ratio, 2), 0) - 1
                 self.steps[pos.positionIdx] = int(step)
                 self.wscl.set_prestart(self.create_limit, pos, price)
+            pos.data = {}
+        time.sleep(2)
         asyncio.run(self.wscl.bind(self.handle_position_stream, self.handle_execution_stream, self.handle_order_stream))
     

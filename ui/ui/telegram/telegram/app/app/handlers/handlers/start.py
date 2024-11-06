@@ -113,6 +113,13 @@ async def start_bybit(message: types.Message, state: FSMContext):
             asyncio.run(main())
         
         dp = Disptcher(sttngs)
-        p = Process(target=dp.start)
-        p.daemon = True
-        p.start()
+        try:
+            p = Process(target=dp.start)
+            p.daemon = True
+            p.start()
+        except Exception:
+            print('Ошибка системы Windows призапуске многоппроцессорного режима')
+            print('Запуск многопоточного режима. Остановка не работает')
+            from threading import Thread
+            t = Thread(target=dp.start)
+            t.start()
