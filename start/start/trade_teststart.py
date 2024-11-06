@@ -1,7 +1,7 @@
 from strategies.test_strategy import Disptcher
 from strategies.settings import StrategySettings
 
-import asyncio
+from multiprocessing import Process
 
 
 sttngs = StrategySettings()
@@ -37,4 +37,10 @@ sttngs.logprefix = 'a/a.log'
 dp = Disptcher(sttngs)
 # dp.start()
 # await dp.start()
-asyncio.run(dp.start())
+# asyncio.run(dp.start())
+def a():
+    for i in range(100):
+        print(2)
+
+if __name__ == '__main__':
+    p = Process(target=dp.start)

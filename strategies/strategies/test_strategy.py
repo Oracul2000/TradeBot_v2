@@ -115,7 +115,7 @@ class Disptcher:
         price = start_price * (1 + operator * percents_from_start_price / 100)
         return price
 
-    async def start(self):
+    def start(self):
         try:
             self.wscl.session.switch_position_mode(category='linear',
                                                 symbol=self.sttngs.symbol,
@@ -137,5 +137,5 @@ class Disptcher:
                 step = round(log(ratio, 2), 0) - 1
                 self.steps[pos.positionIdx] = int(step)
                 self.wscl.set_prestart(self.create_limit, pos, price)
-        await self.wscl.bind(self.handle_position_stream, self.handle_execution_stream, self.handle_order_stream)
+        asyncio.run(self.wscl.bind(self.handle_position_stream, self.handle_execution_stream, self.handle_order_stream))
     

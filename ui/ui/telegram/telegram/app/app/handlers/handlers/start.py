@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 import asyncio
 from datetime import datetime
-import threading
+from multiprocessing import Process
 
 from handlers.allusers import ByBitStart
 from database.models.models import user
@@ -111,7 +111,8 @@ async def start_bybit(message: types.Message, state: FSMContext):
             async def main():
                 await asyncio.gather(dp.start())
             asyncio.run(main())
-
+        
         dp = Disptcher(sttngs)
-        t1 = threading.Thread(target=start, daemon=True)
-        t1.start()
+        p = Process(target=dp.start)
+        p.daemon = True
+        p.start()
