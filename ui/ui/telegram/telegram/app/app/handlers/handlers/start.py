@@ -6,7 +6,6 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-import asyncio
 from datetime import datetime
 from multiprocessing import Process
 
@@ -16,6 +15,7 @@ from strategies.test_strategy import Disptcher
 from strategies.settings import StrategySettings
 from template_messages.template_messages import *
 from keyboards import buttons
+from strategies.main import startwrapper
 
 
 engine = create_engine("sqlite:///Data.db", echo=True)
@@ -106,27 +106,14 @@ async def start_bybit(message: types.Message, state: FSMContext):
         sttngs.stepmap = user_data['stepmap']
         sttngs.symbol = f'{a.symbol}USDT'
         sttngs.valuemap = user_data['valuemap']
-        sttngs.logprefix = f'logs/{u.id}{u.name}/{a.id}{a.symbol}/{datetime.now()}.log'
+        sttngs.logprefix = f'a/a.log'
 
-        
-        dp = Disptcher(sttngs)
-        try:
-            with Session(engine) as session:
-                from multiprocessing import Process
-                a = session.query(user.API).filter(
-                    user.API.id == aid).all()[0]
-                p = Process(target=dp.start)
-                p.daemon = True
-                p.name = f'TradeProcessUSER{u.id}API{aid}SYMBOL{a.symbol}'
-                p.start()
-
-                a.pid = str(p.pid)
-                session.commit()
-                tasks[aid] = p
-        except Exception:
-            print('Ошибка системы Windows призапуске многоппроцессорного режима')
-            print('Запуск многопоточного режима. Остановка не работает')
-
+        p = Process(target=startwrapper, args=(sttngs,))
+        p.daemon = True
+        p.start()
+        a.pid = str(p.pid)
+        session.commit()
+        tasks[aid]= p
 
 @router.callback_query(F.data.startswith("bybit_stop_"))
 async def start_bybit(message: types.Message, state: FSMContext):

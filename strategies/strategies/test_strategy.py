@@ -138,6 +138,4 @@ class Disptcher:
                 self.steps[pos.positionIdx] = int(step)
                 self.wscl.set_prestart(self.create_limit, pos, price)
             pos.data = {}
-        time.sleep(2)
-        asyncio.run(self.wscl.bind(self.handle_position_stream, self.handle_execution_stream, self.handle_order_stream))
-    
+        self.wscl.bind2(self.handle_position_stream, self.handle_execution_stream, self.handle_order_stream)

@@ -40,4 +40,13 @@ sttngs.logprefix = 'a/a.log'
 dp = Disptcher(sttngs)
 dp.start()
 # await dp.start()
-asyncio.run(dp.start())
+# asyncio.run(dp.start())
+
+if __name__ == '__main__':
+    p = Process(target=dp.start)
+    p.name = "AYE"
+    p.daemon = True
+    p.start()
+    p.join()
+    p.kill()
+    print(p.id, p.name)

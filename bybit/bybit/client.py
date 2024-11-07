@@ -59,6 +59,10 @@ class wsclient_pybit:
             await asyncio.sleep(0)
             f(*x)
 
+    def prestart(self):
+        for f, x in zip(self.prestart_funcs, self.prestart_args):
+            f(*x)
+
     async def bind(self, handle_position_stream, 
              handle_execution_stream,
              handle_order_stream):
@@ -70,6 +74,20 @@ class wsclient_pybit:
         while True:
             if not_started:
                 await self.async_prestart()
+                not_started = False
+            time.sleep(0.001)
+
+    def bind2(self, handle_position_stream, 
+             handle_execution_stream,
+             handle_order_stream):
+        self.wsprivate.position_stream(handle_position_stream)
+        self.wsprivate.execution_stream(handle_execution_stream)
+        self.wsprivate.order_stream(handle_order_stream)
+
+        not_started = True
+        while True:
+            if not_started:
+                self.prestart()
                 not_started = False
             time.sleep(0.001)
             
