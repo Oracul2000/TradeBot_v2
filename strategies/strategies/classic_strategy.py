@@ -1,74 +1,84 @@
-from bybit.client import wsclient_pybit
-from bybit.position import Position
-from bybit.position_trade_wrapper import PositionTradeWrapper
-from bybit.execution import Execution
-from bybit.order import LimitOrder
-from bybit.settings import ByBitSettings
+import asyncio
+from math import log
+
+from bybit.self_written_client import wsclient
 from bybit.constants import *
+from .positions import *
+from bybit.settings import *
+from .messages import *
 from .settings import StrategySettings
 
 
 class Disptcher:
     def handle_position_stream(self, message):
-        print(4.1)
         for i in message['data']:
-            pos = Position(i)
-            if pos.symbol != self.sttngs.symbol:
-                print('Not this symbol')
+            positionidx = i['positionIdx']
+            positionValue = float(i['positionValue'])
+            pos = self.positions[positionidx]
+
+            if not pos.data:
+                pos.data = i
                 continue
-            ptw = self.ptws[pos.positionIdx]
-            step = self.steps[pos.positionIdx]
-            start_price = self.start_prices[pos.positionIdx]
 
+            # Position is closed
+            if positionValue == 0 and float(pos.data['positionValue']) != positionValue:
+                self.positions[positionidx].cancelRecordedLimitOrders()                   
 
-            if pos.positionValue == 0:
-                print('\t\tPosition is closed')
-                ptw.self_update()
-                if ptw.pos.positionValue == 0:
-                    qty = self.calculate_value(ptw.pos.positionIdx, ptw.pos.markPrice)
-                    ptw.market_open(qty, ptw.pos.positionIdx)
-                    step = 0
-                    start_price = 0
-                    print(1, self.start_prices)
-            
-            if ptw.pos.positionValue == 0 and pos.positionValue != 0:
-                print('\t\tMarket Order Opened Event')
-                ptw.self_update()
-                if ptw.pos.positionValue != 0:
-                    step = 0
-                    start_price = pos.entryPrice
-                    print(2, self.start_prices)
+                self.positions[positionidx] = Position(self.wscl.session, positionidx, self.sttngs)
+                self.steps[positionidx] = 0
 
-                    price = self.calculate_price(pos.positionIdx, start_price)
-                    qty = self.calculate_value(pos.positionIdx, price)
-                    ptw.limit_open(qty, pos.positionIdx, price)
-                    ptw.takeProfit(400)
-        print()
+                self.positions[positionidx].data = i
+                price = float(self.wscl.session.get_kline(category="linear",
+                                                    symbol=self.sttngs.symbol,
+                                                    interval="1")['result']['list'][0][1])
+                qty = self.calculate_value(positionidx, price)
+                self.positions[positionidx].market_open(qty)
+            else:
+                self.positions[positionidx].data = i
+                if self.steps[pos.positionIdx] == 6:
+                    self.positions[positionidx].takeProfit(80)
+                else:
+                    self.positions[positionidx].takeProfit(10)
 
     def handle_execution_stream(self, message):
-        return
-        print(4.2)
-        print(message)
-        return
+        pass
         
     def handle_order_stream(self, message):
-        print(4.3)
         for i in message['data']:
-            lo = LimitOrder(i)
-            ptw = self.ptws[lo.positionIdx]
-            step = self.steps[lo.positionIdx]
-            if lo.orderId in ptw.limits:
-                print("Limit Order Filled")
-                step += 1
-                del ptw.limits[lo.orderId]
+            orderId_callback = i['orderId']
+            orderStatus_callback = i['orderStatus']
+            positionIdx_callback = i['positionIdx']
 
-                start_price = self.start_prices[ptw.positionIdx]
-                print(3, self.start_prices)
-                price = self.calculate_price(ptw.positionIdx, start_price)
-                qty = self.calculate_value(ptw.positionIdx, price)
-                ptw.limit_open(qty, ptw.positionIdx, price)
-                ptw.takeProfit(400)
-        return
+            pos = self.positions[positionIdx_callback]
+
+            # Market Order is Filled
+            if orderId_callback in pos.markets:
+                order = pos.markets[orderId_callback]
+                assert type(order) is Order
+                order.isFilled(i)
+                if order.status == ORDERFILLED:
+                    price = self.calculate_price(pos.positionIdx, float(order.data['avgPrice']))
+                    qty = self.calculate_value(pos.positionIdx, price)
+                    pos.limit_open(qty, price)
+
+            # Limit order is Filled
+            elif orderId_callback in pos.limits:
+                order = pos.limits[orderId_callback]
+                assert type(order) is Order
+                order.isFilled(i)
+                if order.status == ORDERFILLED:
+                    self.orderMsg.check_publish(self.steps[pos.positionIdx] + 2, 7)
+
+                    self.create_limit(pos, float(order.data['avgPrice']))
+
+    def create_limit(self, pos: Position, start_price):
+        if self.steps[pos.positionIdx] == 6:
+            pass
+        else:
+            self.steps[pos.positionIdx] += 1
+            price = self.calculate_price(pos.positionIdx, start_price)
+            qty = self.calculate_value(pos.positionIdx, price)
+            pos.limit_open(qty, price)
 
     def __create_bybit_settings(self, sttngs: StrategySettings) -> ByBitSettings:
         bbs = ByBitSettings()
@@ -76,32 +86,29 @@ class Disptcher:
         bbs.symbol = sttngs.symbol
         bbs.api = sttngs.api
         bbs.secret = sttngs.secret
-        bbs.logprefix = ''
+        bbs.logprefix = sttngs.logprefix
         bbs.leverage = sttngs.leverage
         return bbs
 
     def __init__(self, sttngs: StrategySettings) -> None:
         self.sttngs = sttngs
-        self.wscl = wsclient_pybit(self.__create_bybit_settings(sttngs))
+        self.wscl = wsclient(self.__create_bybit_settings(sttngs))
 
-        self.positions = {}
-        self.ptws = {LONGIDX: PositionTradeWrapper(self.wscl.session, self.wscl.bbs, LONGIDX),
-                     SHORTIDX: PositionTradeWrapper(self.wscl.session, self.wscl.bbs, SHORTIDX)}
+        self.positions = {LONGIDX: Position(self.wscl.session, LONGIDX, self.sttngs),
+                          SHORTIDX: Position(self.wscl.session, SHORTIDX, self.sttngs)}
         self.steps = {LONGIDX: 0,
                       SHORTIDX: 0}
-        self.start_prices = {LONGIDX: 0,
-                             SHORTIDX: 0}
         
+        self.orderMsg = OrderMsg(self.sttngs.uid, self.sttngs.symbol) 
+
     def calculate_value(self, positionIdx: int, price_at_moment: float):
-        ptw = self.ptws[positionIdx]
         step = self.steps[positionIdx]
         percents_from_dep = self.sttngs.valuemap[step + 1]
         value_in_usdt = self.sttngs.dep * percents_from_dep / 100
-        value_in_coins = value_in_usdt / price_at_moment * ptw.bbs.leverage
+        value_in_coins = value_in_usdt / price_at_moment * self.sttngs.leverage
         return value_in_coins
     
     def calculate_price(self, positionIdx: int, start_price: float):
-        ptw = self.ptws[positionIdx]
         step = self.steps[positionIdx]
         percents_from_start_price = self.sttngs.stepmap[step]
         operator = {LONGIDX: -1, SHORTIDX: 1}[positionIdx]
@@ -109,9 +116,27 @@ class Disptcher:
         return price
 
     def start(self):
-        for positionIdx, ptw in self.ptws.items():
-            ptw.self_update()
-            qty = self.calculate_value(positionIdx, ptw.pos.markPrice)
-            ptw.market_open(qty, positionIdx)
-        
-        self.wscl.bind(self.handle_position_stream, self.handle_execution_stream, self.handle_order_stream)
+        try:
+            self.wscl.session.switch_position_mode(category='linear',
+                                                symbol=self.sttngs.symbol,
+                                                mode=3)
+        except Exception:
+            pass
+        for positionidx, pos in self.positions.items():
+            pos.self_update()
+            price = float(self.wscl.session.get_kline(category="linear",
+                                                symbol=self.sttngs.symbol,
+                                                interval="1")['result']['list'][0][1])
+            if pos.data['avgPrice'] == '0':
+                qty = self.calculate_value(positionidx, price)
+                self.wscl.set_prestart(pos.market_open, qty)
+            else:
+                start_qty = self.sttngs.dep * self.sttngs.valuemap[1]
+                start_value_usdt = start_qty * price
+                ratio = float(pos.data['positionValue']) / start_value_usdt
+                step = round(log(ratio, 2), 0) - 1
+                self.steps[pos.positionIdx] = int(step)
+                self.wscl.set_prestart(self.create_limit, pos, price)
+            pos.data = {}
+        self.wscl.bind(self.handle_position_stream, self.handle_order_stream)
+        self.wscl.start_wrapper()

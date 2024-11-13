@@ -32,3 +32,7 @@ roundationMap = {
     "BTCUSDT": 3,
     "ETHUSDT": 2
 }
+
+PerpetualStream = "PerpetualStream"
+PrivateStream = "PerpetualStream"
+OrderEntryStream = "OrderEntryStream"

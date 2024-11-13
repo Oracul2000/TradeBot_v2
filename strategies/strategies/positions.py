@@ -16,7 +16,7 @@ class Position:
         self.markets = {}
         self.tps = {}
 
-        self.roundation = 0
+        self.roundation = roundationMap[self.sttngs.symbol]
         self.start_price = 0
         self.data = {}
 

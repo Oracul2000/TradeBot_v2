@@ -1,4 +1,4 @@
-from .test_strategy import Disptcher
+from .classic_strategy import Disptcher
 from .settings import StrategySettings
 
 
