@@ -131,12 +131,13 @@ class Disptcher:
                 qty = self.calculate_value(positionidx, price)
                 self.wscl.set_prestart(pos.market_open, qty)
             else:
-                start_qty = self.sttngs.dep * self.sttngs.valuemap[1]
+                start_qty = self.sttngs.dep * self.sttngs.valuemap[1] / 100 * self.sttngs.leverage
                 start_value_usdt = start_qty * price
                 ratio = float(pos.data['positionValue']) / start_value_usdt
-                step = round(log(ratio, 2), 0) - 1
-                self.steps[pos.positionIdx] = int(step)
-                self.wscl.set_prestart(self.create_limit, pos, price)
+                step = int(round(log(ratio, 2), 0)) - 1
+                self.steps[pos.positionIdx] = step
+                operator = {LONGIDX: -1, SHORTIDX: 1}[pos.positionIdx]
+                self.wscl.set_prestart(self.create_limit, pos, price * (1 - operator * self.sttngs.stepmap[step] / 100))
             pos.data = {}
         self.wscl.bind(self.handle_position_stream, self.handle_order_stream)
         self.wscl.start_wrapper()

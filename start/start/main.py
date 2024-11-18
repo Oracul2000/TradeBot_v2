@@ -13,7 +13,7 @@ sttngs.api = '65T4Es3ZgsqkDSee51'
 sttngs.secret = 'aZbGgaLllNGk2rl4AG1oypd04uUqytM5kfvj'
 sttngs.testnet = True
 sttngs.leverage = 20
-sttngs.dep = 250
+sttngs.dep = 300
 sttngs.stepmap = [
     0.3,
     0.8,
@@ -23,7 +23,7 @@ sttngs.stepmap = [
     10,
     15
 ]
-sttngs.symbol = 'DOGEUSDT'
+sttngs.symbol = 'XRPUSDT'
 sttngs.valuemap = [
     0.2,
     0.2,
