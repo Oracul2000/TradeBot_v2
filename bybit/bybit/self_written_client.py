@@ -74,6 +74,7 @@ class wsclient:
         return response
     
     def start_wrapper(self):
+        logging.info("self_written_client - wsclient - def start_wrapper")
         asyncio.get_event_loop().run_until_complete(self.start())
 
     async def start(self):

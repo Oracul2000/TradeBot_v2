@@ -1,4 +1,5 @@
 from .constants import *
+import logging
 
 
 class Order:
@@ -10,11 +11,11 @@ class Order:
     def isSended(self, data: dict):
         self.orderId = data['orderId']
         self.status = ORDERSENDED
-        print(f'Order {self.orderId} is Sended')
+        logging.info(f'Order {self.orderId} is Sended\nData:{data}')
 
     def isFilled(self, data: dict):
         self.data = data
         if data['orderStatus'] == 'Filled':
             self.status = ORDERFILLED
-            print(f'Order {self.orderId} is Filled')
+            logging.info(f'Order {self.orderId} is Filled\nData:{data}')
     

@@ -1,6 +1,8 @@
 from pybit.unified_trading import HTTP
 import pybit.exceptions
 
+import logging
+
 from .constants import *
 from .orders import *
 from .settings import *
@@ -65,6 +67,7 @@ class Position:
                     orderId=i)
             except Exception:
                 print('cancelRecordedLimitOrders', i)
+                logging.info(f"'cancelRecordedLimitOrders', {i}")
 
     def takeProfit(self, percents):
         # self.self_update()
@@ -86,5 +89,5 @@ class Position:
                 positionIdx=self.positionIdx
             )
         except pybit.exceptions.InvalidRequestError as e:
-            print('pybit.exceptions.InvalidRequestError in Take Profit')
+            logging.info('pybit.exceptions.InvalidRequestError in Take Profit')
 

@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from datetime import datetime
 from multiprocessing import Process
+import os
 
 from handlers.allusers import ByBitStart
 from database.models.models import user
@@ -106,7 +107,16 @@ async def start_bybit(message: types.Message, state: FSMContext):
         sttngs.stepmap = user_data['stepmap']
         sttngs.symbol = f'{a.symbol}USDT'
         sttngs.valuemap = user_data['valuemap']
-        sttngs.logprefix = f'a/a.log'
+        
+        # if not os.path.exists(f"/logs/uid{u.id}/aid{a.id}"):
+        #     # os.mkdir(f"/logs")
+        #     os.mkdir(f"/logs/uid{u.id}/")
+        #     os.mkdir(f"/logs/uid{u.id}/aid{a.id}/")
+        # temp_file=open(f'/logs/uid{u.id}/aid{a.id}/{a.symbol}USDT.log','w')
+        # temp_file.write("\n")
+        # temp_file.close()
+        sttngs.logprefix = f'logs/l{u.id}_{a.id}_{a.symbol}USDT.log'
+        # sttngs.logprefix = 'logs/log.log'
 
         p = Process(target=startwrapper, args=(sttngs,))
         p.daemon = True

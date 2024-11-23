@@ -1,5 +1,8 @@
 import asyncio
 from math import log
+import logging
+import os
+
 
 from bybit.self_written_client import wsclient
 from bybit.constants import *
@@ -116,25 +119,40 @@ class Disptcher:
         return price
 
     def start(self):
+        logging.basicConfig(level=logging.INFO, filename=self.sttngs.logprefix, filemode="w")
         try:
-            self.wscl.session.switch_position_mode(category='linear',
+            resp = self.wscl.session.switch_position_mode(category='linear',
                                                 symbol=self.sttngs.symbol,
                                                 mode=3)
-        except Exception:
+            logging.info(f"Switch Position Mode\n{resp}")
+        except Exception as e:
+            logging.warning("Switch Position Mode Exception")
             pass
+        logging.info("positionidx, pos in self.positions.items():")
         for positionidx, pos in self.positions.items():
+            logging.info(f"positionIdx: {positionidx}\t pos: {pos}")
             pos.self_update()
+            logging.info("pos.self_update()")
             price = float(self.wscl.session.get_kline(category="linear",
                                                 symbol=self.sttngs.symbol,
                                                 interval="1")['result']['list'][0][1])
+            logging.info(f"price: {price}")
             if pos.data['avgPrice'] == '0':
+                logging.info(f"pos.data[avgPrice] == {str(pos.data['avgPrice'])}")
                 qty = self.calculate_value(positionidx, price)
+                logging.info(f"qty: {qty}")
                 self.wscl.set_prestart(pos.market_open, qty)
+                logging.info("self.wscl.set_prestart(pos.market_open, qty)")
             else:
+                logging.info("fpos.data['avgPrice'] == {pos.data['avgPrice']}")
                 start_qty = self.sttngs.dep * self.sttngs.valuemap[1] / 100 * self.sttngs.leverage
+                logging.info(f"start_qty: {start_qty}")
                 start_value_usdt = start_qty * price
+                logging.info(f"start_value_usdt: {start_value_usdt}")
                 ratio = float(pos.data['positionValue']) / start_value_usdt
+                logging.info(f"ratio: {ratio}")
                 step = int(round(log(ratio, 2), 0)) - 1
+                logging.info(f"step: {step}")
                 self.steps[pos.positionIdx] = step
                 operator = {LONGIDX: -1, SHORTIDX: 1}[pos.positionIdx]
                 self.wscl.set_prestart(self.create_limit, pos, price * (1 - operator * self.sttngs.stepmap[step] / 100))
