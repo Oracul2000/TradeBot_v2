@@ -30,8 +30,8 @@ class Instruments:
         resp = self.session.get_open_orders(
             category='linear',
             symbol=self.symbol,
-            openOnly=0,
-            # limit=1
+            openOnly=1,
+            limit=1
         )
         return resp['result']['list']
     
